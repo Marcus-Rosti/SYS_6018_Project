@@ -8,7 +8,7 @@ config = {
     'description': 'Sys 6018 Project',
     'author': 'Marcus Rosti',
     'url': 'github.com/Marcus-Rosty/Sys_6018_Project',
-    'download_url': 'github.com/Marcus-Rosty/Sys_6018_Project',
+    'download_url': 'http://www.github.com/Marcus-Rosty/Sys_6018_Project',
     'author_email': 'mer3ef@virginia.edu',
     'version': '0.0',
     'install_requires': ['json','numpy','scikit'],
