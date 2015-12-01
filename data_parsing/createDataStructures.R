@@ -17,7 +17,7 @@ user <- data.frame()
 
 business_json_file <- "../data/json/yelp_academic_dataset_business.json"
 #checkin_json_file  <- "../data/json/yelp_academic_dataset_checkin.json"
-review_json_file <- "../data/json/yelp_academic_dataset_review.json"
+review_json_file <- "../data/json/yelp_academic_dataset_reviews.json"
 #tip_json_file <- "../data/json/yelp_academic_dataset_tip.json"
 user_json_file <- "../data/json/yelp_academic_dataset_user.json"
 
@@ -50,28 +50,33 @@ createFlatFiles <- function(){
   gc()
   
   
-  #reviews
-  data <- paste(readLines(review_json_file),collapse=",")
-  data <- fromJSON(paste("{\"dat\":[",data,"]}"))
-  data <- lapply(data$dat, function(x){ unlist(x)}) 
-  gc()
-  reviews <- vector()
-  i <- 0
-  while((100000*i+1)<length(data)){
-    if(((i+1)*100000)<length(data)){
-      data1 <- (mclapply(((100000*i+1):((i+1)*100000)), 
-                        function(x) {print(x);do.call("data.frame", as.list(data[[x]]))}, mc.cores = getOption("mc.cores", 2L) ))
-      
-    }else{
-      data1 <- (mclapply(((100000*i+1):length(data)), 
-                function(x) {print(x);do.call("data.frame", as.list(data[[x]]))}, mc.cores = getOption("mc.cores", 2L) ))
-     
-    }
-    reviews[i+1] <- rbind.fill.parallel(data1)
-    save(reviews,file="../data/rdata/revuews_part.RData")
+  #reviews 
+  parts <- c('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p')
+  for(part in parts){
+    print(paste("Part =",part))
+    file <- paste0(review_json_file,"_part_a",part)
+    data <- paste(readLines(file),collapse=",")
+    data <- fromJSON(paste("{\"dat\":[",data,"]}"))
+    data <- lapply(data$dat, function(x){ unlist(x)}) 
+    data <- (mclapply((1:length(data)), 
+                      function(x) {print(x);do.call("data.frame", as.list(data[[x]]))}, mc.cores = getOption("mc.cores", 2L) ))
     gc()
-    i <- i+1
+    reviews <- rbind.fill.parallel(data,2L)[[1]]
+    save(reviews,file=paste0("../data/rdata/reviews_raw_flatfile_part_",part,".RData"))
+    rm(data,file,reviews)
   }
+  
+  x <- parts[1]
+  load(file=paste0("../data/rdata/reviews_raw_flatfile_part_",x,".RData"))
+  review_data <-  reviews
+  for(i in 2:length(parts)){
+    x <- parts[i]
+    load(file = paste0("../data/rdata/reviews_raw_flatfile_part_",x,".RData"))
+    review_data <- rbind.fill(review_data,reviews)
+  }
+  reviews <- review_data
+  save(reviews,file="../data/rdata/reviews_raw_flatfile.RData")
+  
   
   #users
   data <- paste(readLines(user_json_file),collapse=",")
