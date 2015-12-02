@@ -96,4 +96,7 @@ preProcess <- function(){
   drops <- c("elite","elite1","elite2","elite3","elite4","elite5","elite6","elite7","elite8","elite9","elite10","elite11")
   users_clean <- users_clean[,!(names(users_clean) %in% drops)]
   
+  save(business_clean, file="../data/rdata/business_clean.RData")
+  save(reviews_clean, file="../data/rdata/reviews_clean.RData")
+  save(users_clean, file="../data/rdata/users_clean.RData")
 }
