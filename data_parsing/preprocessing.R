@@ -157,3 +157,14 @@ preProcess <- function(){
   save(users_clean, file="../data/rdata/users_clean.RData")
 
 }
+
+user_review_of_business_df <- function() {
+  load("../data/rdata/reviews_clean.RData")
+
+  usb = reviews_clean[c(4,6,10)]
+
+  usb$user_id = as.character(usb$user_id)
+  usb$business_id = as.character(usb$business_id)
+  usb$stars = as.numeric(as.character(usb$stars))
+  return(usb)
+}
