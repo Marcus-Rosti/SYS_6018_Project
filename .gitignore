@@ -1,5 +1,6 @@
 # Project specific
 data/
+**/*.Rdata
 
 # Created by .ignore support plugin (hsz.mobi)
 ### LibreOffice template
