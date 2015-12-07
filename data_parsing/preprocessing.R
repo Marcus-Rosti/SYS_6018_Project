@@ -59,7 +59,7 @@ preProcess <- function(){
   business_clean <- sqldf(
       "SELECT *
       FROM business
-      WHERE city='Phoenix'
+      WHERE city='Avondale'
       AND (
         categories = 'Restaurants'
         OR categories1 = 'Restaurants'
