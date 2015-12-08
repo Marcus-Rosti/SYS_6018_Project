@@ -64,7 +64,7 @@ users$topicDist <- as.numeric(users$topicDist)
 users$locationMetricHalfMile <- as.numeric(users$locationMetricHalfMile)
 users$locationMetricOneMile <- as.numeric(users$locationMetricOneMile)
 users$predictedStars <- as.numeric(users$predictedStars)
-users$visited <- as.numeric(users$visited)
+users$visited <- as.factor(users$visited)
 
 ###
 # Split into train-test
