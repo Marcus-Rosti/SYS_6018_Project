@@ -7,6 +7,7 @@ require(tm)
 require(SnowballC)
 require(parallel)
 require(ggplot2)
+require(lsa)
 
 restaurant_documents <- list()
 users_documents <- list()
@@ -41,7 +42,7 @@ corpus.clean = tm_map(corpus.clean, removeWords, stopwords("english"))  # remove
 corpus.clean = tm_map(corpus.clean, stemDocument)                       # stem all words
 #some common words which kept appearing in all topics
 corpus.clean = tm_map(corpus.clean, removeWords, c("food","place","good","like","time","just","get","great","tri","servic","order",
-                                                   "restaur","love","will","back","one","realli"))
+                                                   "restaur","love","will","back","one","realli","friend"))
 
 corpus.clean.tf = DocumentTermMatrix(corpus.clean, control = list(weighting = weightTf))
 
@@ -94,4 +95,28 @@ save(topic.model,file="../data/rdata/topic_model_10.RData")
 # look at the top 20 words within the topics
 terms(topic.model, 20)
 # look at the topics within the documents
-topics(topic.model,10)[,1:117]
+docTopics <- topics(topic.model,10)
+#probabilites
+topicProbs <- topic.model@gamma
+
+
+
+#Prepare a user-restaurant matrix that has differences between user's topics and restaurant's topics
+all_users <- names(users_documents_sub)
+all_rest <- names(restaurant_documents_sub)
+
+topicDiff <- matrix(,nrow=length(all_users),ncol=length(all_rest))
+dimnames(topicDiff)[[1]] <- all_users
+dimnames(topicDiff)[[2]] <- all_rest
+
+for(i in 1:length(all_users)){
+  print(i)
+  userTopics <- topicProbs[i+length(all_rest),]
+  for(j in 1:length(all_rest)){
+    restTopics <- topicProbs[j,]
+    dist <-  cosine(userTopics,restTopics)
+    topicDiff[i,j] <- dist
+  }
+}
+
+save(topicDiff,file="../data/rdata/topic_distances.RData")
