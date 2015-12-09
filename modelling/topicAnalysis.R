@@ -22,7 +22,7 @@ for(i in 1:nrow(reviews_clean)){
   } else{
     restaurant_documents[[rest]] <- text
   }
-  if(user %in% names(users_documents)){
+  if(rest!='mwiNm868yAo8Xh8hO7Ke_Q' && user %in% names(users_documents)){
     users_documents[[user]] <- paste(users_documents[[user]],text)
   } else{
     users_documents[[user]] <- text

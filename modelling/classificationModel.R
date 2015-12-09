@@ -66,6 +66,14 @@ users$locationMetricOneMile <- as.numeric(users$locationMetricOneMile)
 users$predictedStars <- as.numeric(users$predictedStars)
 users$visited <- as.factor(users$visited)
 
+
+###
+# Remove Outliers
+plot(users[,c(1:4,23)])
+plot(users[,c(6:10,23)])
+plot(users[,c(11:15,23)])
+plot(users[,c(16:22,23)])
+
 ###
 # Split into train-test
 set.seed(2313523)
@@ -76,3 +84,34 @@ test.data <-  users[-indices,]
 
 ###
 # Logistic Model \ or \ SVM
+model1 <- glm(visited~. ,data=train.data[,c(1:4,6:21,23)],family="binomial")
+summary(model1)
+
+#evaluation
+F1score <- function(model,test.data,response,threshold=0.5){
+  predictions <- predict(model,newdata=test.data,type="response")
+  predictions <- ifelse(predictions>=threshold,1,0)
+  actuals <- test.data[,response]
+  TN = sum(actuals==0 & predictions==0)
+  FP = sum(actuals==0 & predictions==1)
+  FN = sum(actuals==1 & predictions==0)
+  TP = sum(actuals==1 & predictions==1)
+  Pre = TP/(TP+FP)
+  Rec = TP/(TP+FN)
+  F1 = 2*((Pre*Rec)/(Pre+Rec))
+  return(F1)
+}
+
+F1score(model1,test.data,"visited")
+# 0.63
+
+model2 <- glm(visited~topicDist+locationMetricOneMile,data=train.data,family="binomial")
+summary(model2)
+F1score(model2,test.data,"visited")
+#0.65
+
+model3 <- glm(visited~topicDist+locationMetricOneMile+review_count+fans+average_stars,data=train.data,family="binomial")
+summary(model3)
+F1score(model3,test.data,"visited")
+#0.64
+
