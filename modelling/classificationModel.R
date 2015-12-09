@@ -1,3 +1,7 @@
+require(ROCR)
+require(pROC)
+require(sqldf)
+
 load("../data/rdata/business_clean.RData")
 load("../data/rdata/users_clean.RData")
 load("../data/rdata/reviews_clean.RData")
@@ -51,7 +55,11 @@ load("../data/rdata/locationMetricOneMile.RData")
 users$locationMetricOneMile <- locationMetricOneMile[users$user_id]
 
 ## populate predictedStars
-
+source("../col_fitler/recommender.R")
+x <- sapply(users$user_id,predict_rating,bid="mwiNm868yAo8Xh8hO7Ke_Q")
+x <- ifelse(x>5,5,x)
+x <- ifelse(x<0,0,x)
+users$predictedStars <- x
 
 # change variable type
 users$votes.funny  <- as.numeric(users$votes.funny)
@@ -69,10 +77,10 @@ users$visited <- as.factor(users$visited)
 
 ###
 # Remove Outliers
-plot(users[,c(1:4,23)])
-plot(users[,c(6:10,23)])
-plot(users[,c(11:15,23)])
-plot(users[,c(16:22,23)])
+#plot(users[,c(1:4,23)])
+#plot(users[,c(6:10,23)])
+#plot(users[,c(11:15,23)])
+#plot(users[,c(16:22,23)])
 
 ###
 # Split into train-test
@@ -83,9 +91,19 @@ train.data <- users[indices,]
 test.data <-  users[-indices,]
 
 ###
-# Logistic Model \ or \ SVM
+# Logistic Model
+# Model 1
 model1 <- glm(visited~. ,data=train.data[,c(1:4,6:21,23)],family="binomial")
 summary(model1)
+
+#ROC Curve
+predictions <- predict(model1,newdata=test.data,type="response")
+pred <- ROCR::prediction(predictions,test.data$visited)
+perf <- ROCR::performance(pred,measure="tpr",x.measure="fpr")
+perf.AUC <- ROCR::performance(pred,measure="auc")
+perf.AUC
+plot(perf)
+title("ROC Curve for predictions, AUC =0.943")
 
 #evaluation
 F1score <- function(model,test.data,response,threshold=0.5){
@@ -105,13 +123,38 @@ F1score <- function(model,test.data,response,threshold=0.5){
 F1score(model1,test.data,"visited")
 # 0.63
 
+#Model 2
 model2 <- glm(visited~topicDist+locationMetricOneMile,data=train.data,family="binomial")
 summary(model2)
 F1score(model2,test.data,"visited")
 #0.65
 
+#ROC Curve
+predictions <- predict(model2,newdata=test.data,type="response")
+pred <- ROCR::prediction(predictions,test.data$visited)
+perf <- ROCR::performance(pred,measure="tpr",x.measure="fpr")
+perf.AUC <- ROCR::performance(pred,measure="auc")
+perf.AUC
+plot(perf)
+title("ROC Curve for predictions, AUC =0.9545")
+
+# Model 3
 model3 <- glm(visited~topicDist+locationMetricOneMile+review_count+fans+average_stars,data=train.data,family="binomial")
 summary(model3)
 F1score(model3,test.data,"visited")
 #0.64
+
+#ROC Curve
+predictions <- predict(model3,newdata=test.data,type="response")
+pred <- ROCR::prediction(predictions,test.data$visited)
+perf <- ROCR::performance(pred,measure="tpr",x.measure="fpr")
+perf.AUC <- ROCR::performance(pred,measure="auc")
+perf.AUC
+plot(perf)
+title("ROC Curve for predictions, AUC =0.9516")
+
+
+#FINAL MODEL: Model 2 seems best
+################################################
+=
 

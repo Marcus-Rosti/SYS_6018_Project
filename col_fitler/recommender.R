@@ -1,6 +1,6 @@
 # Marcus Rosti
 # Based on https://cran.r-project.org/web/packages/recommenderlab/vignettes/recommenderlab.pdf
-setwd("~/Git/SYS_6018_Project/col_fitler/")
+#setwd("~/Git/SYS_6018_Project/col_fitler/")
 source("../data_parsing/preprocessing.R")
 usb <- user_review_of_business_df()
 
