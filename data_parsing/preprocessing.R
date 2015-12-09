@@ -159,7 +159,9 @@ preProcess <- function(){
 }
 
 user_review_of_business_df <- function() {
-  load("../data/rdata/reviews_clean.RData")
+  df_name <- 'reviews_clean'
+  if(!exists(df_name))
+    load("../data/rdata/reviews_clean.RData")
 
   usb = reviews_clean[c(4,6,10)]
 
