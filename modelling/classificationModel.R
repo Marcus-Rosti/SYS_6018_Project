@@ -93,7 +93,7 @@ test.data <-  users[-indices,]
 ###
 # Logistic Model
 # Model 1
-model1 <- glm(visited~. ,data=train.data[,c(1:4,6:21,23)],family="binomial")
+model1 <- glm(visited~. ,data=train.data[,c(1:4,6:22,23)],family="binomial")
 summary(model1)
 
 #ROC Curve
@@ -103,7 +103,7 @@ perf <- ROCR::performance(pred,measure="tpr",x.measure="fpr")
 perf.AUC <- ROCR::performance(pred,measure="auc")
 perf.AUC
 plot(perf)
-title("ROC Curve for predictions, AUC =0.943")
+title("ROC Curve for predictions, AUC =0.9458")
 
 #evaluation
 F1score <- function(model,test.data,response,threshold=0.5){
@@ -121,13 +121,13 @@ F1score <- function(model,test.data,response,threshold=0.5){
 }
 
 F1score(model1,test.data,"visited")
-# 0.63
+# 0.659
 
 #Model 2
-model2 <- glm(visited~topicDist+locationMetricOneMile,data=train.data,family="binomial")
+model2 <- glm(visited~topicDist+locationMetricOneMile+predictedStars,data=train.data,family="binomial")
 summary(model2)
 F1score(model2,test.data,"visited")
-#0.65
+#0.6516
 
 #ROC Curve
 predictions <- predict(model2,newdata=test.data,type="response")
@@ -135,11 +135,16 @@ pred <- ROCR::prediction(predictions,test.data$visited)
 perf <- ROCR::performance(pred,measure="tpr",x.measure="fpr")
 perf.AUC <- ROCR::performance(pred,measure="auc")
 perf.AUC
-plot(perf)
-title("ROC Curve for predictions, AUC =0.9545")
+plot(perf,col="red")
+title("ROC Curve for predictions, AUC =0.9469")
+
+#ANOVA
+anova(model1,model2, test='Chisq')
+
+################
 
 # Model 3
-model3 <- glm(visited~topicDist+locationMetricOneMile+review_count+fans+average_stars,data=train.data,family="binomial")
+model3 <- glm(visited~topicDist+locationMetricOneMile+predictedStars+review_count+fans+average_stars,data=train.data,family="binomial")
 summary(model3)
 F1score(model3,test.data,"visited")
 #0.64
@@ -151,10 +156,9 @@ perf <- ROCR::performance(pred,measure="tpr",x.measure="fpr")
 perf.AUC <- ROCR::performance(pred,measure="auc")
 perf.AUC
 plot(perf)
-title("ROC Curve for predictions, AUC =0.9516")
+title("ROC Curve for predictions, AUC =0.9438")
 
 
 #FINAL MODEL: Model 2 seems best
 ################################################
-=
 

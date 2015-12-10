@@ -56,6 +56,6 @@ predict_rating <- function(uid,bid) {
       return(score)
     return(mean(usb$stars[usb$business_id == bid]))
   })
-  return(mean(usb$stars))
+  return(mean(usb$stars[usb$business_id == bid]))
 }
 
